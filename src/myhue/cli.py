@@ -1,5 +1,6 @@
 import os
 import pprint
+import json
 
 import click
 import click_config_file
@@ -109,37 +110,37 @@ formats = {'XML':xml_print.pprint, 'Python':python_print, 'JSON':json_print}
 
 @click.pass_context
 def cli(ctx, bridge, username, format):
-  """Examine details of a Philips Hue bridge
-  
-  The bridge's hostname (or IP address) and a valid REST API username are
-  required for this utility to work.
-  
-  You can find your bridge's IP address from the Hue app, under
-  Settings->Hue Bridges->Info
-  
-  You can generate a new username with the "--adduser" option. This will
-  prompt you to press the link button on your bridge to authorize creation
-  of a new user.
-  
-  You can either supply the bridge hostname and username on the command
-  line, or in a configuration file.
-  
-  A typical configuration file will look something like:
-  
-    \b
-    bridge = "hue.localdomain"
-    username = "Random-$tr1ng-0f-L3tt3rs-Num8ers-4nd-Dashes"
- 
-  You can see the default configuration filename with the "--defaults"
-  option. You can use a different configuration file with the "--config"
-  option.
-  
-  Note: The "--cfgfile" and "--adduser" options do NOT require any other
-  options, despite w
-  
-  """
-  
-  ctx.obj = {'bridge': Bridge(bridge, username), 'pprint':formats[format]}
+    """Examine details of a Philips Hue bridge
+    
+    The bridge's hostname (or IP address) and a valid REST API username are
+    required for this utility to work.
+    
+    You can find your bridge's IP address from the Hue app, under
+    Settings->Hue Bridges->Info
+    
+    You can generate a new username with the "--adduser" option. This will
+    prompt you to press the link button on your bridge to authorize creation
+    of a new user.
+    
+    You can either supply the bridge hostname and username on the command
+    line, or in a configuration file.
+    
+    A typical configuration file will look something like:
+    
+        \b
+        bridge = "hue.localdomain"
+        username = "Random-$tr1ng-0f-L3tt3rs-Num8ers-4nd-Dashes"
+    
+    You can see the default configuration filename with the "--defaults"
+    option. You can use a different configuration file with the "--config"
+    option.
+    
+    Note: The "--cfgfile" and "--adduser" options do NOT require any other
+    options, despite w
+    
+    """
+    
+    ctx.obj = {'bridge': Bridge(bridge, username), 'pprint':formats[format]}
 
 cli.add_command(light)
 
