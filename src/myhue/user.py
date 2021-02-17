@@ -34,40 +34,37 @@ def user():
     """Work with users (actually the config whitelist)"""
   
 @user.command('list', short_help='List all users')
-@click.pass_context
-def user_list(ctx):
+def user_list():
     """List all users.
     
     Users are actually part of the config whitelist, so can also be seen with the config command.
     """
-    for id, user in ctx.obj['bridge'].config()['whitelist'].items():
+    for id, user in cfg.bridge.config()['whitelist'].items():
         #print(id, user)
         print(f'{id}: {user["name"]}')
 
 @user.command('dump', short_help='Dump data for one user')
 @click.argument('id')
-@click.pass_context
-def user_dump(ctx, id):
+def user_dump(id):
     """Dump the raw Hue data for one specific user.
     
     Users are actually part of the config whitelist, so can also be dumped
     with the config dump command.
     """
     try:
-        ctx.obj['pprint']('light', ctx.obj['bridge'].config()['whitelist'][id])
+        cfg.pprint('light', cfg.bridge.config()['whitelist'][id])
     except KeyError:
         raise click.ClickException(f'No such user "{id}".')
     
 @user.command('delete', short_help='Delete a user (depricated).')
 @click.argument('id')
-@click.pass_context
-def user_delete(ctx, id):
+def user_delete(id):
     """Delete a user.
   
     No longer supported by Hue bridges -
     you have to use https://account.meethue.com/apps
     """
     #try:
-    print(ctx.obj['bridge']('config', 'whitelist', id, http_method='delete'))
+    print(cfg.bridge('config', 'whitelist', id, http_method='delete'))
     #except qhue.qhue.QhueException:
         #raise click.ClickException(f'No such user "{id}".')

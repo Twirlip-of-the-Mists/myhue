@@ -7,6 +7,7 @@ from qhue import Bridge #, create_new_username, qhue
 from .light import light
 from .user import user, user_add
 from .formats import formats
+from . import cfg
 
 APP_NAME = 'myhue'
 CMD_NAME = 'myhue'
@@ -25,7 +26,7 @@ def print_defcfg(ctx, param, value):
     click.echo(f'{click.format_filename(cfgfile)}')
     ctx.exit()
 
-
+# CLick normally only uses '--help' for help. Fix that.
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '-?', '--help'])
 @click.group(context_settings=CONTEXT_SETTINGS)
 
@@ -50,6 +51,10 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '-?', '--help'])
               default='YAML',
               help='Output format to use for dump commands.')
 
+@click.option('-t', '--traceback/--no-traceback',
+              default=False,
+              help='Print tracebacks for Hue errors.')
+
 @click.option('-d', '--defcfg',
               is_flag=True,
               callback=print_defcfg,
@@ -64,8 +69,8 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '-?', '--help'])
               is_eager=True,
               help='Add a new username to your Hue bridge.')
 
-@click.pass_context
-def cli(ctx, bridge, username, format):
+#@click.pass_context
+def cli(bridge, username, format, traceback):
     """Examine details of a Philips Hue bridge
     
     The bridge's hostname (or IP address) and a valid REST API username are
@@ -92,9 +97,11 @@ def cli(ctx, bridge, username, format):
     option.
     
     """
+    cfg.traceback = traceback
+    cfg.bridge = Bridge(bridge, username)
+    cfg.pprint = formats[format]
     
-    ctx.obj = {'bridge': Bridge(bridge, username), 'pprint':formats[format]}
-
+# Pull in commands from other modules
 cli.add_command(light)
 cli.add_command(user)
 
