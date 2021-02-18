@@ -1,9 +1,8 @@
 import sys
+
 import qhue
-import click
 
 from .cli import cli
-
 from . import cfg
 
 def main():

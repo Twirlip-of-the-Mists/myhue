@@ -5,6 +5,8 @@ import click_config_file
 from qhue import Bridge #, create_new_username, qhue
 
 from .light import light
+from .group import group
+from .dump import dump
 from .user import user, user_add
 from .formats import formats
 from . import cfg
@@ -51,6 +53,12 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '-?', '--help'])
               default='YAML',
               help='Output format to use for dump commands.')
 
+@click.option('-i', '--indent',
+              type=click.IntRange(0, 255),
+              metavar='SPACES',
+              default=4,
+              help='Number of spaces to use for indent.')
+
 @click.option('-t', '--traceback/--no-traceback',
               default=False,
               help='Print tracebacks for Hue errors.')
@@ -70,7 +78,7 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '-?', '--help'])
               help='Add a new username to your Hue bridge.')
 
 #@click.pass_context
-def cli(bridge, username, format, traceback):
+def cli(bridge, username, format, indent, traceback):
     """Examine details of a Philips Hue bridge
     
     The bridge's hostname (or IP address) and a valid REST API username are
@@ -100,9 +108,12 @@ def cli(bridge, username, format, traceback):
     cfg.traceback = traceback
     cfg.bridge = Bridge(bridge, username)
     cfg.pprint = formats[format]
+    cfg.indent = indent
     
 # Pull in commands from other modules
 cli.add_command(light)
+cli.add_command(group)
+cli.add_command(dump)
 cli.add_command(user)
 
 #if __name__ == '__main__':

@@ -10,12 +10,30 @@ def light():
     """Work with lights"""
   
 @light.command('list')
-def light_list():
+@click.option('-r', '--room/--no-room', default=False,
+              help='Also show a room each light is in')
+def light_list(room):
     """List all lights"""
     lights = cfg.bridge.lights()
-    for id, light in lights.items():
-        print(f'{id}: {light["name"]}')
+    
+    if room:
+        groups = cfg.bridge.groups().values()
+        rooms = [g for g in groups if g['type'] == 'Room']
+        for name, light_ids in [(r['name'], r['lights']) for r in rooms]:
+            for id in light_ids:
+                lights[id]['room'] = name
 
+    for id, light in lights.items():
+        if 'room' in light:
+            print(f'{id}: {light["name"]} ({light["room"]})')
+        else:
+            print(f'{id}: {light["name"]}')
+
+    t = {}
+    for id, light in lights.items():
+        t[int(id)] = {light['name']: light['room']}
+    cfg.pprint('lights', t)
+    
 @light.command('dump')
 @click.argument('id', type=int)
 def light_dump(id):
@@ -37,7 +55,8 @@ effect_list = ['none', 'colorloop']
               help='Set hue')
 @click.option('--sat', type=click.IntRange(1, 254),
               help='Set saturation')
-@click.option('--xy', type=(float, float), default=(None, None), callback=validate.xy,
+@click.option('--xy', type=(float, float), default=(None, None),
+              callback=validate.xy,
               help='Set x,y coordinates of a color in CIE color space')
 @click.option('--ct', type=click.IntRange(0, 65535),
               help='Set the Mired color temperature')
@@ -58,7 +77,10 @@ effect_list = ['none', 'colorloop']
 @click.option('--xy-inc', type=(float, float), default=(None, None), callback=validate.xy_inc,
               help='Change x,y coordinates of a color in CIE color space')
 def light_set(id, result, **kwargs):
-  """Set the light's state, such as turn it on and off, or modify the hue and effects."""
+  """
+  Set the light's state, such as turn it on or off, modify the hue, or
+  effects.
+  """
   for k in list(kwargs.keys()):
     if kwargs[k] in [None, (None, None)]:
       del kwargs[k]
